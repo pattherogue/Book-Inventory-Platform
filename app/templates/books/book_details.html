@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}{{ book.title }} - Details{% endblock %}
+
+{% block content %}
+<div class="book-details">
+    <h1>{{ book.title }}</h1>
+    <img src="{{ book.image_link }}" alt="{{ book.title }} cover" class="book-cover">
+    <p><strong>Author(s):</strong> {{ book.authors }}</p>
+    <p><strong>Published Date:</strong> {{ book.published_date }}</p>
+    <p><strong>Categories:</strong> {{ book.categories }}</p>
+    <p><strong>Page Count:</strong> {{ book.page_count }}</p>
+    <p><strong>Language:</strong> {{ book.language }}</p>
+    <h2>Description:</h2>
+    <p>{{ book.description }}</p>
+    <a href="{{ url_for('cart.add_to_cart', book_id=book.id) }}" class="btn btn-primary">Add to Cart</a>
+    <a href="{{ url_for('books.search') }}" class="btn btn-secondary">Back to Search</a>
+</div>
+{% endblock %}
