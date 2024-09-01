@@ -6,29 +6,36 @@ logging.basicConfig(level=logging.INFO)
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
-def check_table_structure():
+def execute_sql(sql, params=None):
+    conn = psycopg2.connect(DATABASE_URL)
+    cur = conn.cursor()
     try:
-        conn = psycopg2.connect(DATABASE_URL)
-        cur = conn.cursor()
-        
-        cur.execute("SELECT column_name, data_type, character_maximum_length FROM information_schema.columns WHERE table_name = 'books';")
-        columns = cur.fetchall()
-        
-        logging.info("Current books table structure:")
-        for column in columns:
-            logging.info(f"Column: {column[0]}, Type: {column[1]}, Max Length: {column[2]}")
-        
+        if params:
+            cur.execute(sql, params)
+        else:
+            cur.execute(sql)
+        conn.commit()
+        return cur.fetchall()
+    finally:
+        cur.close()
         conn.close()
-    except Exception as e:
-        logging.error(f"Error checking table structure: {str(e)}")
+
+def check_table_structure():
+    sql = """
+    SELECT column_name, data_type, character_maximum_length 
+    FROM information_schema.columns 
+    WHERE table_name = 'books';
+    """
+    columns = execute_sql(sql)
+    logging.info("Current books table structure:")
+    for column in columns:
+        logging.info(f"Column: {column[0]}, Type: {column[1]}, Max Length: {column[2]}")
+    return columns
 
 def update_books_table():
     try:
-        conn = psycopg2.connect(DATABASE_URL)
-        cur = conn.cursor()
-
         # Drop the existing books table
-        cur.execute("DROP TABLE IF EXISTS books CASCADE;")
+        execute_sql("DROP TABLE IF EXISTS books CASCADE;")
         logging.info("Dropped existing books table")
 
         # Create the books table with the correct structure
@@ -42,27 +49,20 @@ def update_books_table():
             image_link TEXT
         );
         """
-        cur.execute(create_table_sql)
+        execute_sql(create_table_sql)
         logging.info("Created new books table with correct structure")
-
-        conn.commit()
-        logging.info("Books table updated successfully")
-        conn.close()
     except Exception as e:
         logging.error(f"An error occurred: {str(e)}")
 
 def insert_test_book():
     try:
-        conn = psycopg2.connect(DATABASE_URL)
-        cur = conn.cursor()
-
         test_book = {
             'id': 'test123',
-            'title': 'Test Book with a Very Long Title' * 10,  # This will be longer than 200 characters
+            'title': 'Test Book with a Very Long Title' * 10,
             'authors': 'Test Author 1, Test Author 2',
             'published_date': '2023-09-01',
-            'description': 'This is a test book description.' * 100,  # This will be a long description
-            'image_link': 'http://example.com/test-image.jpg' * 5  # This will be a long URL
+            'description': 'This is a test book description.' * 100,
+            'image_link': 'http://example.com/test-image.jpg' * 5
         }
 
         insert_sql = """
@@ -70,16 +70,12 @@ def insert_test_book():
         VALUES (%(id)s, %(title)s, %(authors)s, %(published_date)s, %(description)s, %(image_link)s);
         """
 
-        cur.execute(insert_sql, test_book)
-        conn.commit()
+        execute_sql(insert_sql, test_book)
         logging.info("Test book inserted successfully")
 
         # Verify the inserted data
-        cur.execute("SELECT * FROM books WHERE id = 'test123';")
-        result = cur.fetchone()
+        result = execute_sql("SELECT * FROM books WHERE id = 'test123';")
         logging.info(f"Retrieved test book: {result}")
-
-        conn.close()
     except Exception as e:
         logging.error(f"Error inserting test book: {str(e)}")
 
@@ -95,3 +91,6 @@ if __name__ == "__main__":
 
     logging.info("Inserting test book...")
     insert_test_book()
+
+    logging.info("Final verification of table structure...")
+    check_table_structure()
