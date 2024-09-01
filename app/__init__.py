@@ -2,6 +2,9 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from config import Config
+from dotenv import load_dotenv
+
+load_dotenv()  # This line loads the environment variables from .env
 
 db = SQLAlchemy()
 login_manager = LoginManager()
