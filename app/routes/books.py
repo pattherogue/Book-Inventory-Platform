@@ -1,6 +1,6 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request
 from flask_login import login_required
-from app.services.google_books_api import search_books
+from app.services.google_books_api import search_books, get_book_details
 
 bp = Blueprint('books', __name__)
 
