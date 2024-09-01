@@ -4,7 +4,7 @@ services:
     env: python
     buildCommand: |
       pip install -r requirements.txt
-      python create_tables.py
+      python create_db.py
     startCommand: gunicorn run:app
     envVars:
       - key: PYTHON_VERSION
@@ -17,6 +17,8 @@ services:
         fromDatabase:
           name: book_inventory_db
           property: connectionString
-    buildFilter:
-      paths:
-      - create_tables.py
+
+databases:
+  - name: book_inventory_db
+    databaseName: book_inventory
+    user: book_inventory

@@ -20,33 +20,24 @@ def create_tables(app):
             existing_tables = inspector.get_table_names()
             logging.info(f"Existing tables before creation: {existing_tables}")
             
-            # Drop all tables
-            db.drop_all()
-            logging.info("Dropped all existing tables.")
+            # Import models
+            from app.models import User, Book, CartItem
             
-            # Create tables
-            db.create_all()
-            logging.info("Database tables creation attempt completed.")
+            # Try to create each table individually
+            for model in [User, Book, CartItem]:
+                try:
+                    model.__table__.create(db.engine)
+                    logging.info(f"Table for {model.__name__} created successfully")
+                except Exception as table_error:
+                    logging.error(f"Error creating table for {model.__name__}: {str(table_error)}")
             
             # Check tables again
             inspector = sa.inspect(db.engine)
             new_tables = inspector.get_table_names()
             logging.info(f"Tables after creation attempt: {new_tables}")
             
-            # Verify each model's table
-            from app.models import User, Book, CartItem
-            for model in [User, Book, CartItem]:
-                if model.__tablename__ in new_tables:
-                    logging.info(f"Table for {model.__name__} exists")
-                else:
-                    logging.error(f"Table for {model.__name__} not found")
         except Exception as e:
             logging.error(f"An error occurred during database operations: {str(e)}")
-        
-
-
-
-
 
 def create_app():
     app = Flask(__name__)
