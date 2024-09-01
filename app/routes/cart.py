@@ -12,7 +12,6 @@ bp = Blueprint('cart', __name__)
 def view_cart():
     cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
     return render_template('cart/view.html', cart_items=cart_items)
-
 @bp.route('/cart/add/<book_id>')
 @login_required
 def add_to_cart(book_id):
@@ -32,6 +31,7 @@ def add_to_cart(book_id):
                     description=book_data['description'],
                     image_link=book_data['image_link']
                 )
+                logging.info(f"Created book object: {book.__dict__}")
                 db.session.add(book)
                 try:
                     db.session.commit()
@@ -39,6 +39,7 @@ def add_to_cart(book_id):
                 except Exception as commit_error:
                     db.session.rollback()
                     logging.error(f"Error committing new book to database: {str(commit_error)}")
+                    logging.error(f"Book data causing error: {book.__dict__}")
                     flash('Error adding book to database. Please try again.')
                     return redirect(url_for('books.search'))
             else:
