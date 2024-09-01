@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app.models import CartItem, Book
 from app import db
@@ -24,26 +24,11 @@ def add_to_cart(book_id):
             book_data = get_book_details(book_id)
             if book_data:
                 logging.info(f"Book data fetched: {book_data}")
-                book = Book(
-                    id=book_data['id'],
-                    title=book_data['title'],
-                    authors=book_data['authors'],
-                    published_date=book_data['published_date'],
-                    description=book_data['description'],
-                    image_link=book_data['image_link']
-                )
-                logging.info(f"Created book object: {book.__dict__}")
-                db.session.add(book)
                 try:
-                    db.session.commit()
-                    logging.info(f"New book added to database: {book.id}")
-                except Exception as commit_error:
-                    db.session.rollback()
-                    logging.error(f"Error committing new book to database: {str(commit_error)}")
-                    logging.error(f"Book data causing error: {book.__dict__}")
-                    # Log the current table structure
-                    for column in Book.__table__.columns:
-                        logging.info(f"Column: {column.name}, Type: {column.type}")
+                    book = Book.create_or_update(book_data)
+                    logging.info(f"Book created or updated: {book.id}")
+                except IntegrityError:
+                    logging.error(f"IntegrityError when creating/updating book: {book_data}")
                     flash('Error adding book to database. Please try again.')
                     return redirect(url_for('books.search'))
             else:
@@ -73,8 +58,7 @@ def add_to_cart(book_id):
     except Exception as e:
         logging.error(f"Unexpected error in add_to_cart: {str(e)}")
         flash('An unexpected error occurred. Please try again.')
-        return redirect(url_for('books.search'))
-    
+        return redirect(url_for('books.search'))    
     
 @bp.route('/cart/remove/<int:item_id>')
 @login_required
