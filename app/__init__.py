@@ -17,10 +17,10 @@ def create_app():
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
 
-    from app.routes import auth, books, cart, main
-    app.register_blueprint(auth.bp)
-    app.register_blueprint(books.bp)
-    app.register_blueprint(cart.bp)
-    app.register_blueprint(main.bp)
+    from app.routes import auth_bp, books_bp, cart_bp, main_bp
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(books_bp)
+    app.register_blueprint(cart_bp)
+    app.register_blueprint(main_bp)
 
     return app
