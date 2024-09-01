@@ -13,14 +13,6 @@ def view_cart():
     cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
     return render_template('cart/view.html', cart_items=cart_items)
 
-from flask import Blueprint, render_template, redirect, url_for, flash, request
-from flask_login import login_required, current_user
-from app.models import CartItem, Book
-from app import db
-from app.services.google_books_api import get_book_details
-import logging
-
-bp = Blueprint('cart', __name__)
 @bp.route('/cart/add/<book_id>')
 @login_required
 def add_to_cart(book_id):
@@ -77,8 +69,6 @@ def add_to_cart(book_id):
         logging.error(f"Unexpected error in add_to_cart: {str(e)}")
         flash('An unexpected error occurred. Please try again.')
         return redirect(url_for('books.search'))
-
-
 
 @bp.route('/cart/remove/<int:item_id>')
 @login_required

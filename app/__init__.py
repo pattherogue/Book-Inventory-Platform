@@ -43,26 +43,14 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # Set up logging
-    logging.basicConfig(level=logging.INFO)
-
-    # Log the database URI (make sure to remove any sensitive information)
-    db_uri = app.config.get('SQLALCHEMY_DATABASE_URI', 'Not set')
-    logging.info(f"Database URI: {db_uri.split('@')[-1] if '@' in db_uri else db_uri}")
-
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
 
-    # Create tables
-    create_tables(app)
-
-    from app.routes import auth_bp, books_bp, cart_bp, main_bp
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(books_bp)
-    app.register_blueprint(cart_bp)
-    app.register_blueprint(main_bp)
-
-    logging.info("Application created and configured successfully")
+    from app.routes import auth, books, cart, main
+    app.register_blueprint(auth.bp)
+    app.register_blueprint(books.bp)
+    app.register_blueprint(cart.bp, url_prefix='/cart')
+    app.register_blueprint(main.bp)
 
     return app
