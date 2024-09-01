@@ -29,10 +29,6 @@ class Book(db.Model):
         super(Book, self).__init__(**kwargs)
         if isinstance(self.authors, list):
             self.authors = ', '.join(self.authors)
-        if self.title and len(self.title) > 500:
-            self.title = self.title[:497] + '...'
-        if self.published_date and len(self.published_date) > 20:
-            self.published_date = self.published_date[:20]
 
 class CartItem(db.Model):
     __tablename__ = 'cart_items'
