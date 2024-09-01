@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login_manager
 
 class User(UserMixin, db.Model):
+    __tablename__ = 'users'  # Explicitly set the table name
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
@@ -16,6 +17,7 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
 class Book(db.Model):
+    __tablename__ = 'books'  # Explicitly set the table name
     id = db.Column(db.String(64), primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     authors = db.Column(db.String(200))
@@ -24,9 +26,10 @@ class Book(db.Model):
     image_link = db.Column(db.String(200))
 
 class CartItem(db.Model):
+    __tablename__ = 'cart_items'  # Explicitly set the table name
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    book_id = db.Column(db.String(64), db.ForeignKey('book.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    book_id = db.Column(db.String(64), db.ForeignKey('books.id'))
     quantity = db.Column(db.Integer, default=1)
     book = db.relationship('Book')
 
