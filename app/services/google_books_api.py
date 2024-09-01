@@ -16,13 +16,14 @@ def search_books(query, max_results=10):
     
     books = []
     for item in data.get('items', []):
+        volume_info = item.get('volumeInfo', {})
         book = {
             'id': item['id'],
-            'title': item['volumeInfo'].get('title', 'Unknown'),
-            'authors': ', '.join(item['volumeInfo'].get('authors', ['Unknown'])),
-            'published_date': item['volumeInfo'].get('publishedDate', 'Unknown'),
-            'description': item['volumeInfo'].get('description', 'No description available'),
-            'image_link': item['volumeInfo'].get('imageLinks', {}).get('thumbnail', '')
+            'title': volume_info.get('title', 'Unknown'),
+            'authors': ', '.join(volume_info.get('authors', ['Unknown'])),
+            'published_date': volume_info.get('publishedDate', 'Unknown'),
+            'description': volume_info.get('description', 'No description available'),
+            'image_link': volume_info.get('imageLinks', {}).get('thumbnail', '')
         }
         books.append(book)
     
@@ -39,16 +40,21 @@ def get_book_details(book_id):
     response = requests.get(base_url, params=params)
     data = response.json()
     
+    if 'error' in data:
+        return None
+
+    volume_info = data.get('volumeInfo', {})
+    
     book = {
         'id': data['id'],
-        'title': data['volumeInfo'].get('title', 'Unknown'),
-        'authors': ', '.join(data['volumeInfo'].get('authors', ['Unknown'])),
-        'published_date': data['volumeInfo'].get('publishedDate', 'Unknown'),
-        'description': data['volumeInfo'].get('description', 'No description available'),
-        'image_link': data['volumeInfo'].get('imageLinks', {}).get('thumbnail', ''),
-        'page_count': data['volumeInfo'].get('pageCount', 'Unknown'),
-        'categories': ', '.join(data['volumeInfo'].get('categories', ['Uncategorized'])),
-        'language': data['volumeInfo'].get('language', 'Unknown')
+        'title': volume_info.get('title', 'Unknown'),
+        'authors': ', '.join(volume_info.get('authors', ['Unknown'])),
+        'published_date': volume_info.get('publishedDate', 'Unknown'),
+        'description': volume_info.get('description', 'No description available'),
+        'image_link': volume_info.get('imageLinks', {}).get('thumbnail', ''),
+        'page_count': volume_info.get('pageCount', 'Unknown'),
+        'categories': ', '.join(volume_info.get('categories', ['Uncategorized'])),
+        'language': volume_info.get('language', 'Unknown')
     }
     
     return book
