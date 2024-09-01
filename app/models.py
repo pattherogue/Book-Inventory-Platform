@@ -15,7 +15,7 @@ class Book(db.Model):
     @classmethod
     def create_or_update(cls, book_data):
         try:
-            book = cls.query.filter_by(id=book_data['id']).one()
+            book = cls.query.filter_by(id=book_data['id']).with_for_update().one()
             # Update existing book
             for key, value in book_data.items():
                 setattr(book, key, value)
@@ -24,7 +24,13 @@ class Book(db.Model):
             book = cls(**book_data)
             db.session.add(book)
         
-        db.session.commit()
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            # If commit failed, try to get the book again (it might have been inserted by another process)
+            book = cls.query.filter_by(id=book_data['id']).one()
+        
         return book
 
 class CartItem(db.Model):

@@ -17,7 +17,6 @@ def view_cart():
 
 
 
-
 @bp.route('/cart/add/<book_id>')
 @login_required
 def add_to_cart(book_id):
@@ -35,6 +34,7 @@ def add_to_cart(book_id):
                 except IntegrityError as e:
                     db.session.rollback()
                     logging.error(f"IntegrityError when creating/updating book: {str(e)}")
+                    logging.error(f"Book data causing error: {book_data}")
                     flash('Error adding book to database. Please try again.')
                     return redirect(url_for('books.search'))
             else:
@@ -57,15 +57,16 @@ def add_to_cart(book_id):
             logging.info("Book successfully added to cart")
         except IntegrityError as e:
             db.session.rollback()
-            logging.error(f"Error committing cart item to database: {str(e)}")
+            logging.error(f"IntegrityError when adding to cart: {str(e)}")
+            logging.error(f"Cart item data: user_id={current_user.id}, book_id={book_id}")
             flash('Error adding book to cart. Please try again.')
         
         return redirect(url_for('cart.view_cart'))
     except Exception as e:
         logging.error(f"Unexpected error in add_to_cart: {str(e)}")
+        logging.error(f"Full traceback: ", exc_info=True)
         flash('An unexpected error occurred. Please try again.')
         return redirect(url_for('books.search'))
-
 
 
 
