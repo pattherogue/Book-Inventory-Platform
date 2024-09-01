@@ -20,6 +20,10 @@ def create_tables(app):
             existing_tables = inspector.get_table_names()
             logging.info(f"Existing tables before creation: {existing_tables}")
             
+            # Drop all tables
+            db.drop_all()
+            logging.info("Dropped all existing tables.")
+            
             # Create tables
             db.create_all()
             logging.info("Database tables creation attempt completed.")
@@ -38,6 +42,11 @@ def create_tables(app):
                     logging.error(f"Table for {model.__name__} not found")
         except Exception as e:
             logging.error(f"An error occurred during database operations: {str(e)}")
+        
+
+
+
+
 
 def create_app():
     app = Flask(__name__)
