@@ -12,6 +12,7 @@ bp = Blueprint('cart', __name__)
 def view_cart():
     cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
     return render_template('cart/view.html', cart_items=cart_items)
+
 @bp.route('/cart/add/<book_id>')
 @login_required
 def add_to_cart(book_id):
@@ -40,6 +41,9 @@ def add_to_cart(book_id):
                     db.session.rollback()
                     logging.error(f"Error committing new book to database: {str(commit_error)}")
                     logging.error(f"Book data causing error: {book.__dict__}")
+                    # Log the current table structure
+                    for column in Book.__table__.columns:
+                        logging.info(f"Column: {column.name}, Type: {column.type}")
                     flash('Error adding book to database. Please try again.')
                     return redirect(url_for('books.search'))
             else:
@@ -70,7 +74,8 @@ def add_to_cart(book_id):
         logging.error(f"Unexpected error in add_to_cart: {str(e)}")
         flash('An unexpected error occurred. Please try again.')
         return redirect(url_for('books.search'))
-
+    
+    
 @bp.route('/cart/remove/<int:item_id>')
 @login_required
 def remove_from_cart(item_id):

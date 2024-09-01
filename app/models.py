@@ -17,13 +17,7 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
 class Book(db.Model):
-    __tablename__ = 'books'
-    id = db.Column(db.String(64), primary_key=True)
-    title = db.Column(db.String(500), nullable=False)
-    authors = db.Column(db.Text)
-    published_date = db.Column(db.String(20))
-    description = db.Column(db.Text)
-    image_link = db.Column(db.Text)
+    __table__ = db.Model.metadata.tables['books']
 
     def __init__(self, **kwargs):
         super(Book, self).__init__(**kwargs)
