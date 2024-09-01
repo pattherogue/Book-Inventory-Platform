@@ -15,9 +15,6 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
-from app import db
 
 class Book(db.Model):
     __tablename__ = 'books'
@@ -32,14 +29,10 @@ class Book(db.Model):
         super(Book, self).__init__(**kwargs)
         if isinstance(self.authors, list):
             self.authors = ', '.join(self.authors)
-        if self.description and len(self.description) > 5000:
-            self.description = self.description[:4997] + '...'
         if self.title and len(self.title) > 500:
             self.title = self.title[:497] + '...'
         if self.published_date and len(self.published_date) > 20:
             self.published_date = self.published_date[:20]
-
-# ... (rest of the models)
 
 class CartItem(db.Model):
     __tablename__ = 'cart_items'

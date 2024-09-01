@@ -12,24 +12,12 @@ def upgrade():
             ALTER TABLE books
             ALTER COLUMN title TYPE VARCHAR(500),
             ALTER COLUMN authors TYPE TEXT,
-            ALTER COLUMN image_link TYPE TEXT;
-        """))
-        
-        # Alter users table (if needed)
-        conn.execute(sa.text("""
-            ALTER TABLE users
-            ALTER COLUMN username TYPE VARCHAR(64),
-            ALTER COLUMN email TYPE VARCHAR(120);
-        """))
-        
-        # Alter cart_items table (if needed)
-        conn.execute(sa.text("""
-            ALTER TABLE cart_items
-            ALTER COLUMN quantity SET DEFAULT 1;
+            ALTER COLUMN image_link TYPE TEXT,
+            ALTER COLUMN description TYPE TEXT;
         """))
         
         conn.commit()
+        print("Books table altered successfully.")
 
 if __name__ == '__main__':
     upgrade()
-    print("Tables altered successfully.")
