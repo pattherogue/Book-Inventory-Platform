@@ -2,9 +2,6 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from config import Config
-from dotenv import load_dotenv
-
-load_dotenv()
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -18,7 +15,7 @@ def create_app():
     login_manager.login_view = 'auth.login'
 
     with app.app_context():
-        db.create_all()  # This line ensures the database tables are created
+        db.create_all()
 
     from app.routes import auth_bp, books_bp, cart_bp, main_bp
     app.register_blueprint(auth_bp)
