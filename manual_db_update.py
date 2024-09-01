@@ -22,25 +22,24 @@ def execute_sql(sql, params=None):
 
 def check_table_structure():
     sql = """
-    SELECT column_name, data_type, character_maximum_length 
-    FROM information_schema.columns 
-    WHERE table_name = 'books';
+    SELECT table_name FROM information_schema.tables 
+    WHERE table_schema = 'public';
     """
-    columns = execute_sql(sql)
-    logging.info("Current books table structure:")
-    for column in columns:
-        logging.info(f"Column: {column[0]}, Type: {column[1]}, Max Length: {column[2]}")
-    return columns
+    tables = execute_sql(sql)
+    logging.info(f"Existing tables: {tables}")
 
-def update_books_table():
-    try:
-        # Drop the existing books table
-        execute_sql("DROP TABLE IF EXISTS books CASCADE;")
-        logging.info("Dropped existing books table")
-
-        # Create the books table with the correct structure
-        create_table_sql = """
-        CREATE TABLE books (
+def create_tables_if_not_exist():
+    tables = {
+        'users': """
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            username VARCHAR(64) UNIQUE NOT NULL,
+            email VARCHAR(120) UNIQUE NOT NULL,
+            password_hash VARCHAR(128)
+        );
+        """,
+        'books': """
+        CREATE TABLE IF NOT EXISTS books (
             id VARCHAR(64) PRIMARY KEY,
             title VARCHAR(500) NOT NULL,
             authors TEXT,
@@ -48,49 +47,30 @@ def update_books_table():
             description TEXT,
             image_link TEXT
         );
+        """,
+        'cart_items': """
+        CREATE TABLE IF NOT EXISTS cart_items (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id),
+            book_id VARCHAR(64) REFERENCES books(id),
+            quantity INTEGER DEFAULT 1
+        );
         """
-        execute_sql(create_table_sql)
-        logging.info("Created new books table with correct structure")
-    except Exception as e:
-        logging.error(f"An error occurred: {str(e)}")
+    }
 
-def insert_test_book():
-    try:
-        test_book = {
-            'id': 'test123',
-            'title': 'Test Book with a Very Long Title' * 10,
-            'authors': 'Test Author 1, Test Author 2',
-            'published_date': '2023-09-01',
-            'description': 'This is a test book description.' * 100,
-            'image_link': 'http://example.com/test-image.jpg' * 5
-        }
-
-        insert_sql = """
-        INSERT INTO books (id, title, authors, published_date, description, image_link)
-        VALUES (%(id)s, %(title)s, %(authors)s, %(published_date)s, %(description)s, %(image_link)s);
-        """
-
-        execute_sql(insert_sql, test_book)
-        logging.info("Test book inserted successfully")
-
-        # Verify the inserted data
-        result = execute_sql("SELECT * FROM books WHERE id = 'test123';")
-        logging.info(f"Retrieved test book: {result}")
-    except Exception as e:
-        logging.error(f"Error inserting test book: {str(e)}")
+    for table_name, create_sql in tables.items():
+        try:
+            execute_sql(create_sql)
+            logging.info(f"Table {table_name} created or already exists")
+        except Exception as e:
+            logging.error(f"Error creating table {table_name}: {str(e)}")
 
 if __name__ == "__main__":
     logging.info("Checking initial table structure...")
     check_table_structure()
     
-    logging.info("Updating table structure...")
-    update_books_table()
+    logging.info("Creating tables if they don't exist...")
+    create_tables_if_not_exist()
     
     logging.info("Checking final table structure...")
-    check_table_structure()
-
-    logging.info("Inserting test book...")
-    insert_test_book()
-
-    logging.info("Final verification of table structure...")
     check_table_structure()

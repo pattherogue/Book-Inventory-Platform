@@ -16,16 +16,8 @@ def create_app():
     login_manager.login_view = 'auth.login'
 
     with app.app_context():
-        # Reflect the current database schema
-        db.reflect()
-        logging.info("Database schema reflected")
-
-        # Log the current table structure
-        for table_name in db.metadata.tables:
-            table = db.metadata.tables[table_name]
-            logging.info(f"Table: {table_name}")
-            for column in table.columns:
-                logging.info(f"  Column: {column.name}, Type: {column.type}")
+        db.reflect()  # This will load the existing table structures
+        from app import models  # Import models after reflecting
 
     from app.routes import auth, books, cart, main
     app.register_blueprint(auth.bp)
