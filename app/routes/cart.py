@@ -15,6 +15,9 @@ def view_cart():
     return render_template('cart/view.html', cart_items=cart_items)
 
 
+
+
+
 @bp.route('/cart/add/<book_id>')
 @login_required
 def add_to_cart(book_id):
@@ -29,8 +32,9 @@ def add_to_cart(book_id):
                 try:
                     book = Book.create_or_update(book_data)
                     logging.info(f"Book created or updated: {book.id}")
-                except IntegrityError:
-                    logging.error(f"IntegrityError when creating/updating book: {book_data}")
+                except IntegrityError as e:
+                    db.session.rollback()
+                    logging.error(f"IntegrityError when creating/updating book: {str(e)}")
                     flash('Error adding book to database. Please try again.')
                     return redirect(url_for('books.search'))
             else:
@@ -51,9 +55,9 @@ def add_to_cart(book_id):
             db.session.commit()
             flash('Book added to cart')
             logging.info("Book successfully added to cart")
-        except Exception as commit_error:
+        except IntegrityError as e:
             db.session.rollback()
-            logging.error(f"Error committing cart item to database: {str(commit_error)}")
+            logging.error(f"Error committing cart item to database: {str(e)}")
             flash('Error adding book to cart. Please try again.')
         
         return redirect(url_for('cart.view_cart'))
@@ -61,6 +65,14 @@ def add_to_cart(book_id):
         logging.error(f"Unexpected error in add_to_cart: {str(e)}")
         flash('An unexpected error occurred. Please try again.')
         return redirect(url_for('books.search'))
+
+
+
+
+
+
+
+
 
 
 

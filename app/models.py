@@ -1,6 +1,7 @@
 from flask_login import UserMixin
 from app import db, login_manager
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import NoResultFound
 
 class User(UserMixin, db.Model):
     __table__ = db.Model.metadata.tables['users']
@@ -13,18 +14,17 @@ class Book(db.Model):
 
     @classmethod
     def create_or_update(cls, book_data):
-        book = cls.query.get(book_data['id'])
-        if book is None:
-            book = cls(**book_data)
-            db.session.add(book)
-        else:
+        try:
+            book = cls.query.filter_by(id=book_data['id']).one()
+            # Update existing book
             for key, value in book_data.items():
                 setattr(book, key, value)
-        try:
-            db.session.commit()
-        except IntegrityError:
-            db.session.rollback()
-            raise
+        except NoResultFound:
+            # Create new book
+            book = cls(**book_data)
+            db.session.add(book)
+        
+        db.session.commit()
         return book
 
 class CartItem(db.Model):
