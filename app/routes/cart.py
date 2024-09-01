@@ -16,59 +16,27 @@ def view_cart():
 
 
 
-
 @bp.route('/cart/add/<book_id>')
 @login_required
 def add_to_cart(book_id):
     logging.info(f"Attempting to add book with ID: {book_id} to cart")
     try:
-        book = Book.query.get(book_id)
-        if not book:
-            logging.info(f"Book not found in database, fetching from API")
-            book_data = get_book_details(book_id)
-            if book_data:
-                logging.info(f"Book data fetched: {book_data}")
-                try:
-                    book = Book.create_or_update(book_data)
-                    logging.info(f"Book created or updated: {book.id}")
-                except IntegrityError as e:
-                    db.session.rollback()
-                    logging.error(f"IntegrityError when creating/updating book: {str(e)}")
-                    logging.error(f"Book data causing error: {book_data}")
-                    flash('Error adding book to database. Please try again.')
-                    return redirect(url_for('books.search'))
-            else:
-                logging.error(f"Book not found in API: {book_id}")
-                flash('Book not found')
-                return redirect(url_for('books.search'))
-
-        cart_item = CartItem.query.filter_by(user_id=current_user.id, book_id=book_id).first()
-        if cart_item:
-            cart_item.quantity += 1
-            logging.info(f"Increased quantity for existing cart item: {cart_item.id}")
+        book_data = get_book_details(book_id)
+        if book_data:
+            logging.info(f"Book data fetched: {book_data}")
         else:
-            cart_item = CartItem(user_id=current_user.id, book_id=book_id)
-            db.session.add(cart_item)
-            logging.info(f"Created new cart item for user {current_user.id} and book {book_id}")
+            logging.error(f"Book not found in API: {book_id}")
         
-        try:
-            db.session.commit()
-            flash('Book added to cart')
-            logging.info("Book successfully added to cart")
-        except IntegrityError as e:
-            db.session.rollback()
-            logging.error(f"IntegrityError when adding to cart: {str(e)}")
-            logging.error(f"Cart item data: user_id={current_user.id}, book_id={book_id}")
-            flash('Error adding book to cart. Please try again.')
+        logging.info(f"User ID: {current_user.id}")
+        logging.info(f"Book ID: {book_id}")
         
-        return redirect(url_for('cart.view_cart'))
+        flash('Book data logged (not added to cart)')
+        return redirect(url_for('books.search'))
     except Exception as e:
         logging.error(f"Unexpected error in add_to_cart: {str(e)}")
         logging.error(f"Full traceback: ", exc_info=True)
         flash('An unexpected error occurred. Please try again.')
         return redirect(url_for('books.search'))
-
-
 
 
 

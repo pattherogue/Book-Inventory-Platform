@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from config import Config
@@ -47,5 +47,18 @@ def create_app():
             return 'Database connection successful!'
         except Exception as e:
             return f'Database connection failed: {str(e)}'
+
+    @app.route('/db_schema')
+    def db_schema():
+        schema = []
+        for table_name in db.metadata.tables:
+            table = db.metadata.tables[table_name]
+            table_info = {
+                'name': table_name,
+                'columns': [{'name': column.name, 'type': str(column.type)} for column in table.columns],
+                'constraints': [str(constraint) for constraint in table.constraints]
+            }
+            schema.append(table_info)
+        return jsonify(schema)
 
     return app
