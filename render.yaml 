@@ -17,8 +17,6 @@ services:
         fromDatabase:
           name: book_inventory_db
           property: connectionString
-
-databases:
-  - name: book_inventory_db
-    databaseName: book_inventory
-    user: book_inventory
+    buildFilter:
+      paths:
+      - create_tables.py
