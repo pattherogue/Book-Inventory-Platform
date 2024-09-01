@@ -51,6 +51,38 @@ def update_books_table():
     except Exception as e:
         logging.error(f"An error occurred: {str(e)}")
 
+def insert_test_book():
+    try:
+        conn = psycopg2.connect(DATABASE_URL)
+        cur = conn.cursor()
+
+        test_book = {
+            'id': 'test123',
+            'title': 'Test Book with a Very Long Title' * 10,  # This will be longer than 200 characters
+            'authors': 'Test Author 1, Test Author 2',
+            'published_date': '2023-09-01',
+            'description': 'This is a test book description.' * 100,  # This will be a long description
+            'image_link': 'http://example.com/test-image.jpg' * 5  # This will be a long URL
+        }
+
+        insert_sql = """
+        INSERT INTO books (id, title, authors, published_date, description, image_link)
+        VALUES (%(id)s, %(title)s, %(authors)s, %(published_date)s, %(description)s, %(image_link)s);
+        """
+
+        cur.execute(insert_sql, test_book)
+        conn.commit()
+        logging.info("Test book inserted successfully")
+
+        # Verify the inserted data
+        cur.execute("SELECT * FROM books WHERE id = 'test123';")
+        result = cur.fetchone()
+        logging.info(f"Retrieved test book: {result}")
+
+        conn.close()
+    except Exception as e:
+        logging.error(f"Error inserting test book: {str(e)}")
+
 if __name__ == "__main__":
     logging.info("Checking initial table structure...")
     check_table_structure()
@@ -60,3 +92,6 @@ if __name__ == "__main__":
     
     logging.info("Checking final table structure...")
     check_table_structure()
+
+    logging.info("Inserting test book...")
+    insert_test_book()
