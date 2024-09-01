@@ -4,7 +4,7 @@ services:
     env: python
     buildCommand: |
       pip install -r requirements.txt
-      python -v migrations/alter_books_table.py
+      python manual_db_update.py
     startCommand: gunicorn run:app
     envVars:
       - key: PYTHON_VERSION
