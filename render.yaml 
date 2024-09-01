@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: book-inventory-platform
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn run:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.2
+      - key: SECRET_KEY
+        generateValue: true
+      - key: GOOGLE_BOOKS_API_KEY
+        sync: false
