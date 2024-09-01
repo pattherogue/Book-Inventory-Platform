@@ -14,7 +14,6 @@ def view_cart():
     return render_template('cart/view.html', cart_items=cart_items)
 
 
-
 @bp.route('/cart/add/<book_id>')
 @login_required
 def add_to_cart(book_id):
@@ -71,7 +70,6 @@ def add_to_cart(book_id):
         logging.error(f"Unexpected error in add_to_cart: {str(e)}")
         flash('An unexpected error occurred. Please try again.')
         return redirect(url_for('books.search'))
-
 
 
 
