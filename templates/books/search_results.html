@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+    <h1>Search Results</h1>
+    {% if books %}
+        <div class="book-grid">
+            {% for book in books %}
+                <div class="book-card">
+                    <img src="{{ book.image_link }}" alt="{{ book.title }} cover" class="book-cover">
+                    <h2>{{ book.title }}</h2>
+                    <p>By {{ book.authors }}</p>
+                    <a href="{{ url_for('books.book_details', book_id=book.id) }}" class="btn btn-secondary">View Details</a>
+                    <a href="{{ url_for('cart.add_to_cart', book_id=book.id) }}" class="btn btn-primary">Add to Cart</a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No books found. Please try a different search query.</p>
+    {% endif %}
+{% endblock %}
