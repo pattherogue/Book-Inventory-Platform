@@ -1,2 +1,35 @@
+# Environment variable file
 .env
+
+# Virtual environment directory
 venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# MacOS Finder directory
+.DS_Store
+
+# VSCode directory
+.vscode/
+
+# PyCharm directory
+.idea/
+
+# Log files
+*.log
+
+# Distribution and packaging
+*.egg
+*.egg-info
+dist/
+build/
+
+# Secrets and sensitive data
+*.env
+*.secret
