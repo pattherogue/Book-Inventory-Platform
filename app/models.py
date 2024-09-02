@@ -52,6 +52,8 @@ class CartItem(db.Model):
     book_id = db.Column(db.String(64), db.ForeignKey('books.id'), nullable=False)
     quantity = db.Column(db.Integer, default=1)
 
+    book = relationship('Book', backref='cart_items')
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
