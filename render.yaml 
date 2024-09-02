@@ -4,7 +4,9 @@ services:
     env: python
     buildCommand: |
       pip install -r requirements.txt
-      python manual_db_update.py
+      flask db init
+      flask db migrate
+      flask db upgrade
     startCommand: gunicorn run:app
     envVars:
       - key: PYTHON_VERSION

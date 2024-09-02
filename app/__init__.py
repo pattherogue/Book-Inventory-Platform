@@ -1,11 +1,13 @@
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_migrate import Migrate
 from config import Config
 import logging
 
 db = SQLAlchemy()
 login_manager = LoginManager()
+migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
@@ -13,13 +15,19 @@ def create_app():
 
     db.init_app(app)
     login_manager.init_app(app)
+    migrate.init_app(app, db)
+    
     login_manager.login_view = 'auth.login'
 
     # Set up logging
     logging.basicConfig(level=logging.INFO)
 
     with app.app_context():
-        db.reflect()  # This will load the existing table structures
+        # Import models
+        from app import models
+        
+        # Create tables
+        db.create_all()
         
         # Log table structures
         for table_name in db.metadata.tables:
@@ -29,9 +37,6 @@ def create_app():
                 logging.info(f"  Column: {column.name}, Type: {column.type}")
             for constraint in table.constraints:
                 logging.info(f"  Constraint: {constraint}")
-
-        # Import models after reflecting
-        from app import models
 
     # Register blueprints
     from app.routes import auth, books, cart, main
