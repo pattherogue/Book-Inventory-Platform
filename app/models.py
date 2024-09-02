@@ -3,18 +3,25 @@ from app import db, login_manager
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import relationship
-
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128))
+    password_hash = db.Column(db.String(128), nullable=False)
 
     def get_id(self):
         return str(self.id)
 
+    def set_password(self, password):
+        """Set the user's password hash."""
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        """Check if the provided password matches the hashed password."""
+        return check_password_hash(self.password_hash, password)
 
 class Book(db.Model):
     __tablename__ = 'books'
