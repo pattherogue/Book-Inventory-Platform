@@ -3,14 +3,26 @@ from app import db, login_manager
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 
+
 class User(UserMixin, db.Model):
-    __table__ = db.Model.metadata.tables['users']
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128))
 
     def get_id(self):
         return str(self.id)
 
+
 class Book(db.Model):
-    __table__ = db.Model.metadata.tables['books']
+    __tablename__ = 'books'
+    id = db.Column(db.String(64), primary_key=True)
+    title = db.Column(db.String(500), nullable=False)
+    authors = db.Column(db.Text)
+    published_date = db.Column(db.String(20))
+    description = db.Column(db.Text)
+    image_link = db.Column(db.Text)
 
     @classmethod
     def create_or_update(cls, book_data):
@@ -34,7 +46,11 @@ class Book(db.Model):
         return book
 
 class CartItem(db.Model):
-    __table__ = db.Model.metadata.tables['cart_items']
+    __tablename__ = 'cart_items'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    book_id = db.Column(db.String(64), db.ForeignKey('books.id'), nullable=False)
+    quantity = db.Column(db.Integer, default=1)
 
 @login_manager.user_loader
 def load_user(user_id):
