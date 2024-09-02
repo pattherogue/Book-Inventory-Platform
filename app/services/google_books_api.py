@@ -13,11 +13,11 @@ def search_books(query, max_results=10):
         volume_info = item.get('volumeInfo', {})
         books.append({
             'id': item['id'],
-            'title': volume_info.get('title', 'Unknown')[:500],
-            'authors': ', '.join(volume_info.get('authors', ['Unknown']))[:200],
-            'published_date': volume_info.get('publishedDate', 'Unknown')[:20],
-            'description': volume_info.get('description', 'No description available')[:5000],
-            'image_link': volume_info.get('imageLinks', {}).get('thumbnail', '')[:500]
+            'title': volume_info.get('title', 'Unknown'),
+            'authors': ', '.join(volume_info.get('authors', ['Unknown'])),
+            'published_date': volume_info.get('publishedDate', 'Unknown'),
+            'description': volume_info.get('description', 'No description available'),
+            'image_link': volume_info.get('imageLinks', {}).get('thumbnail', '')
         })
     
     return books
@@ -36,9 +36,9 @@ def get_book_details(book_id):
     
     return {
         'id': data['id'],
-        'title': volume_info.get('title', 'Unknown')[:500],
-        'authors': ', '.join(volume_info.get('authors', ['Unknown']))[:200],
-        'published_date': volume_info.get('publishedDate', 'Unknown')[:20],
-        'description': volume_info.get('description', 'No description available')[:5000],
-        'image_link': volume_info.get('imageLinks', {}).get('thumbnail', '')[:500]
+        'title': volume_info.get('title', 'Unknown'),
+        'authors': ', '.join(volume_info.get('authors', ['Unknown'])),
+        'published_date': volume_info.get('publishedDate', 'Unknown'),
+        'description': volume_info.get('description', 'No description available'),
+        'image_link': volume_info.get('imageLinks', {}).get('thumbnail', '')
     }
