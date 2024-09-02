@@ -1,35 +1,40 @@
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login_manager
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import NoResultFound
 
 class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), index=True, unique=True)
-    email = db.Column(db.String(120), index=True, unique=True)
-    password_hash = db.Column(db.String(128))
+    __table__ = db.Model.metadata.tables['users']
 
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+    def get_id(self):
+        return str(self.id)
 
 class Book(db.Model):
-    id = db.Column(db.String(64), primary_key=True)
-    title = db.Column(db.String(500), nullable=False)
-    authors = db.Column(db.Text, nullable=False)
-    published_date = db.Column(db.String(20))
-    description = db.Column(db.Text)
-    image_link = db.Column(db.Text)
+    __table__ = db.Model.metadata.tables['books']
+
+    @classmethod
+    def create_or_update(cls, book_data):
+        try:
+            book = cls.query.filter_by(id=book_data['id']).with_for_update().one()
+            # Update existing book
+            for key, value in book_data.items():
+                setattr(book, key, value)
+        except NoResultFound:
+            # Create new book
+            book = cls(**book_data)
+            db.session.add(book)
+        
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            # If commit failed, try to get the book again (it might have been inserted by another process)
+            book = cls.query.filter_by(id=book_data['id']).one()
+        
+        return book
 
 class CartItem(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    book_id = db.Column(db.String(64), db.ForeignKey('book.id'), nullable=False)
-    quantity = db.Column(db.Integer, default=1)
-
-    user = db.relationship('User', backref=db.backref('cart_items', lazy=True))
-    book = db.relationship('Book', backref=db.backref('cart_items', lazy=True))
+    __table__ = db.Model.metadata.tables['cart_items']
 
 @login_manager.user_loader
 def load_user(user_id):
