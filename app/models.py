@@ -2,6 +2,7 @@ from flask_login import UserMixin
 from app import db, login_manager
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm import relationship
 
 
 class User(UserMixin, db.Model):
