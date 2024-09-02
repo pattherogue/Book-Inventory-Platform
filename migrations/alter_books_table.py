@@ -18,7 +18,7 @@ def upgrade():
             
             # Alter books table
             alter_statements = [
-                "ALTER TABLE books ALTER COLUMN title TYPE VARCHAR(1000)",
+                "ALTER TABLE books ALTER COLUMN title TYPE VARCHAR(500)",
                 "ALTER TABLE books ALTER COLUMN authors TYPE TEXT",
                 "ALTER TABLE books ALTER COLUMN image_link TYPE TEXT",
                 "ALTER TABLE books ALTER COLUMN description TYPE TEXT"
